@@ -1,113 +1,106 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { ArrowRight } from 'lucide-react';
 import { sanityClient, urlFor } from '../lib/sanity';
 
-const posts = await sanityClient.fetch('*[_type == "post"] | order(publishedAt desc){title, slug, publishedAt, mainImage, excerpt}');
+const posts = await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc){
+  title, 
+  slug, 
+  publishedAt, 
+  mainImage, 
+  excerpt
+}`);
+
+// Função para gerar rotações nos cards (simulando colagem manual)
+function getRotation(index: number) {
+  const rotations = ['rotate-1', '-rotate-2', 'rotate-2', '-rotate-1'];
+  return rotations[index % rotations.length];
+}
 ---
 
-<BaseLayout title="MIXTAPE252 | Digital Chaos">
-  <section class="relative flex flex-col items-center justify-center min-h-[80vh] px-4 py-20 overflow-hidden">
-    <!-- Decorative Noise/Texture Overlay if needed (CSS handled globally but structural hooks here) -->
+<BaseLayout title="MIXTAPE252 // ARTE & CAOS">
+  
+  <section class="relative flex flex-col items-center justify-center min-h-screen p-6 text-center bg-[#f4f1ea] border-b-4 border-black overflow-hidden">
     
-    <div class="w-full max-w-5xl mx-auto relative z-10 space-y-12">
-      
-      <!-- Giant Title -->
-      <div class="relative inline-block transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-        <h1 class="text-6xl md:text-9xl font-black bg-black text-white px-6 py-4 inline-block shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          MIXTAPE252
-        </h1>
-      </div>
-
-      <!-- Manifesto Section -->
-      <div class="grid md:grid-cols-2 gap-8 items-start mt-12">
-        <div class="text-xl max-w-3xl font-mono border-l-8 border-black pl-6 text-left space-y-4">
-          <p class="font-bold uppercase leading-tight">
-            Criamos como coletivo. <br>
-            Agimos como agência. <br>
-            Pensamos como banda punk.
-          </p>
-          <p class="text-base opacity-80 normal-case font-sans">
-            Sem pressão de métrica. Sem algoritmo no pescoço. <br>
-            Apenas arte com verdade e caos controlado.
-          </p>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="flex flex-col items-start justify-center h-full">
-          <a 
-            href="#zine" 
-            class="group relative inline-flex items-center gap-2 px-8 py-4 bg-[#ff4d00] text-white text-xl font-bold uppercase border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] transition-all duration-200"
-          >
-            <span>Acessar Zine</span>
-            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-          </a>
-          <span class="mt-4 font-mono text-xs uppercase tracking-widest opacity-60">
-            // v.2.5.2 // early access
-          </span>
-        </div>
-      </div>
-
+    <div class="relative z-10 mb-8 rotate-[-1deg]">
+      <h1 class="text-6xl md:text-9xl font-black tracking-tighter uppercase leading-[0.85] text-black drop-shadow-[6px_6px_0px_rgba(0,0,0,0.15)]">
+        ARTE COM VERDADE<br/>
+        <span class="text-[#ff4d00] bg-black px-2 inline-block transform -skew-x-6">E CAOS CONTROLADO</span>
+      </h1>
     </div>
 
-    <!-- Abstract Background Elements (Zine Style) -->
-    <div class="absolute top-10 right-10 w-32 h-32 bg-black opacity-10 rotate-12 pointer-events-none"></div>
-    <div class="absolute bottom-20 left-10 w-64 h-12 bg-black opacity-10 -rotate-6 pointer-events-none"></div>
+    <div class="relative z-10 bg-white border-4 border-black p-8 max-w-2xl text-left shadow-[12px_12px_0px_0px_#111] transform rotate-1 hover:rotate-0 transition-transform duration-300">
+      <ul class="list-none space-y-4 font-mono text-lg md:text-xl font-bold text-black">
+        <li class="flex items-center gap-4">
+          <span class="bg-black text-white px-3 py-1 text-sm border-2 border-transparent">01</span> 
+          CRIAMOS COMO COLETIVO.
+        </li>
+        <li class="flex items-center gap-4">
+          <span class="bg-black text-white px-3 py-1 text-sm border-2 border-transparent">02</span> 
+          AGIMOS COMO AGÊNCIA.
+        </li>
+        <li class="flex items-center gap-4">
+          <span class="bg-black text-white px-3 py-1 text-sm border-2 border-transparent">03</span> 
+          PENSAMOS COMO BANDA PUNK.
+        </li>
+      </ul>
+      <div class="mt-8 pt-4 border-t-4 border-black flex flex-col md:flex-row md:items-center justify-between text-xs md:text-sm font-sans uppercase tracking-widest text-gray-600 gap-2">
+        <span>Sem métrica.</span>
+        <span>Sem algoritmo.</span>
+      </div>
+    </div>
+
+    <a href="#zine" class="relative z-10 mt-16 px-12 py-5 bg-[#ff4d00] text-white border-4 border-black font-black text-2xl uppercase tracking-wide hover:bg-black hover:text-white hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_#000] transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      Acessar Zine ↓
+    </a>
 
   </section>
 
-  <!-- Zine Section / Latest Drops -->
-  <section id="zine" class="py-20 px-4 bg-white text-black border-t-4 border-black">
-    <div class="max-w-6xl mx-auto">
-      <h2 class="text-4xl md:text-6xl font-black uppercase mb-12 inline-block border-b-8 border-black pb-2">
-        Latest Drops
-      </h2>
+  <section id="zine" class="py-24 px-4 bg-white min-h-screen relative">
+    <div class="container mx-auto max-w-7xl">
+      
+      <div class="mb-20 flex items-center justify-center md:justify-start">
+        <h2 class="text-5xl md:text-8xl font-black uppercase tracking-tighter bg-black text-white px-4 py-2 transform -rotate-2 shadow-[8px_8px_0px_0px_#ff4d00]">
+          Latest Drops
+        </h2>
+      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post: any) => (
-          <a href={`/post/${post.slug.current}`} class="group block h-full">
-            <article class="border-4 border-black h-full bg-[#f4f1ea] transition-transform hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <!-- Image -->
-              <div class="aspect-video w-full overflow-hidden border-b-4 border-black bg-gray-200 relative">
-                {post.mainImage ? (
-                  <img 
-                    src={urlFor(post.mainImage).width(600).url()} 
-                    alt={post.title}
-                    class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                  />
-                ) : (
-                  <div class="w-full h-full flex items-center justify-center bg-neutral-300 text-neutral-500 font-mono text-sm">NO SIGNAL</div>
-                )}
-                
-                <!-- Overlay Date -->
-                <div class="absolute top-0 left-0 bg-black text-white px-3 py-1 font-mono text-sm">
-                  {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
-                </div>
-              </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16 px-4">
+        {posts.map((post: any, index: number) => (
+          <a 
+            href={`/post/${post.slug.current}`} 
+            class={`group block relative bg-[#f4f1ea] border-4 border-black h-full hover:z-20 hover:scale-105 transition-all duration-300 shadow-[8px_8px_0px_0px_#000] hover:shadow-[16px_16px_0px_0px_#ff4d00] ${getRotation(index)}`}
+          >
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/50 backdrop-blur-sm border border-gray-300 rotate-1 shadow-sm z-10"></div>
 
-              <!-- Content -->
-              <div class="p-6 space-y-4">
-                <h3 class="text-2xl font-black leading-none uppercase group-hover:text-[#ff4d00] transition-colors">
-                  {post.title}
-                </h3>
-                <p class="font-mono text-sm leading-relaxed line-clamp-3 opacity-80">
-                  {post.excerpt}
-                </p>
-                <div class="pt-4 flex justify-end">
-                  <span class="inline-block px-3 py-1 bg-black text-white font-mono text-xs uppercase hover:bg-[#ff4d00] transition-colors">Read More_</span>
-                </div>
+            <div class="aspect-square border-b-4 border-black overflow-hidden relative">
+              {post.mainImage ? (
+                <img 
+                  src={urlFor(post.mainImage).width(600).height(600).url()} 
+                  alt={post.title}
+                  class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                />
+              ) : (
+                <div class="w-full h-full flex items-center justify-center bg-neutral-200 font-mono">NO SIGNAL</div>
+              )}
+              
+              <div class="absolute bottom-0 right-0 bg-black text-white text-xs font-mono px-3 py-1 border-t-4 border-l-4 border-black">
+                {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
               </div>
-            </article>
+            </div>
+
+            <div class="p-6 flex flex-col gap-4">
+              <h3 class="text-3xl font-black uppercase leading-[0.9] group-hover:text-[#ff4d00] transition-colors">
+                {post.title}
+              </h3>
+              <p class="font-mono text-xs md:text-sm text-gray-800 leading-tight line-clamp-3 border-l-2 border-black pl-3">
+                {post.excerpt}
+              </p>
+            </div>
           </a>
         ))}
       </div>
-      
-      {posts.length === 0 && (
-        <div class="text-center py-20 border-4 border-dashed border-black opacity-50">
-          <p class="font-mono text-xl">SYSTEM EMPTY // AGUARDANDO TRANSMISSÃO</p>
-        </div>
-      )}
 
     </div>
   </section>
+
 </BaseLayout>

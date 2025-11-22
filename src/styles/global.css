@@ -15,10 +15,24 @@ body {
   background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-body);
-  /* Zine aesthetic: Rough edges */
   -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Efeito de Ruído (Noise) Global */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://www.transparenttextures.com/patterns/noise-lines.png");
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 50;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -27,9 +41,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Selection style - High contrast marker look */
 ::selection {
   background-color: var(--color-ink);
   color: var(--color-paper);
 }
-
