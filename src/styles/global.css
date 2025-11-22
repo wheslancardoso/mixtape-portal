@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --color-paper: #f4f1ea;
+  --color-ink: #111111;
+}
+
+@theme {
+  --font-body: "Courier New", Courier, monospace;
+  --font-heading: Impact, "Arial Black", sans-serif;
+}
+
+html,
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  /* Zine aesthetic: Rough edges */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Selection style - High contrast marker look */
+::selection {
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+}
+
