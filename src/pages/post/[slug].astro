@@ -1,7 +1,7 @@
 ---
-import { PortableText } from '@portabletext/react';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { sanityClient, urlFor } from '../../lib/sanity';
+import { PortableText } from "@portabletext/react";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sanityClient, urlFor } from "../../lib/sanity";
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "post"]`);
@@ -11,47 +11,60 @@ export async function getStaticPaths() {
   }));
 }
 
+interface Props {
+  post: any;
+}
+
 const { post } = Astro.props;
 ---
 
 <BaseLayout title={post.title}>
   <article class="min-h-screen bg-white text-black">
-    
     <header class="border-b-4 border-black pb-8 mb-12">
       <div class="container mx-auto px-4 pt-12">
         <div class="flex flex-col gap-4">
-          <span class="font-mono text-sm bg-black text-white inline-block w-fit px-2 py-1 uppercase">
-            {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
+          <span
+            class="font-mono text-sm bg-black text-white inline-block w-fit px-2 py-1 uppercase"
+          >
+            {new Date(post.publishedAt).toLocaleDateString("pt-BR")}
           </span>
-          
-          <h1 class="text-5xl md:text-8xl font-black uppercase leading-[0.9] tracking-tighter break-words">
+
+          <h1
+            class="text-5xl md:text-8xl font-black uppercase leading-[0.9] tracking-tighter break-words"
+          >
             {post.title}
           </h1>
         </div>
       </div>
 
-      {post.mainImage && (
-        <div class="mt-8 border-y-4 border-black overflow-hidden">
-          <img 
-            src={urlFor(post.mainImage).width(1200).url()} 
-            alt={post.title}
-            class="w-full h-[60vh] object-cover grayscale hover:grayscale-0 transition-all duration-500"
-          />
-        </div>
-      )}
+      {
+        post.mainImage && (
+          <div class="mt-8 border-y-4 border-black overflow-hidden">
+            <img
+              src={urlFor(post.mainImage).width(1200).url()}
+              alt={post.title}
+              class="w-full h-[60vh] object-cover grayscale hover:grayscale-0 transition-all duration-500"
+            />
+          </div>
+        )
+      }
     </header>
 
     <div class="container mx-auto px-4 max-w-3xl pb-20">
-      <div class="prose prose-xl prose-neutral font-serif marker:text-black prose-headings:font-sans prose-headings:uppercase prose-headings:font-black prose-img:border-2 prose-img:border-black">
+      <div
+        class="prose prose-xl prose-neutral font-serif marker:text-black prose-headings:font-sans prose-headings:uppercase prose-headings:font-black prose-img:border-2 prose-img:border-black"
+      >
         <PortableText value={post.body} />
       </div>
 
       <div class="mt-16 border-t-4 border-black pt-8">
-        <a href="/" class="inline-block px-8 py-3 bg-black text-white font-mono font-bold uppercase hover:bg-red-600 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]">
+        <a
+          href="/"
+          class="inline-block px-8 py-3 bg-black text-white font-mono font-bold uppercase hover:bg-red-600 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"
+        >
           ← Voltar para o Caos
         </a>
       </div>
     </div>
-
   </article>
 </BaseLayout>
