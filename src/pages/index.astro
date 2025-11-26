@@ -3,21 +3,24 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { sanityClient, urlFor } from "../lib/sanity";
 import Newsletter from "../components/Newsletter.astro";
 
-const posts =
-    await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc){
+// Fetch Latest Drop (Hero)
+const latestDrop =
+    await sanityClient.fetch(`*[_type == "drop"] | order(publishedAt desc)[0]{
+  title,
+  slug,
+  publishedAt,
+  coverImage,
+  description
+}`);
+
+// Fetch Latest Posts (Feed)
+const latestPosts =
+    await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc)[0..5]{
   title, 
   slug, 
   publishedAt, 
   mainImage, 
   excerpt
-}`);
-
-const drops =
-    await sanityClient.fetch(`*[_type == "drop"] | order(publishedAt desc)[0..2]{
-  title,
-  slug,
-  publishedAt,
-  coverImage
 }`);
 ---
 
@@ -40,7 +43,7 @@ const drops =
         <h1
             class="text-4xl md:text-6xl font-headline tracking-tighter uppercase mb-4 md:mb-0 hover:text-safety-orange transition-colors cursor-pointer"
         >
-            Mixtape252
+            <a href="/">Mixtape252</a>
         </h1>
         <nav>
             <ul
@@ -54,7 +57,7 @@ const drops =
                 </li>
                 <li>
                     <a
-                        href="#drops"
+                        href="/edicoes"
                         class="hover:bg-ink hover:text-safety-orange px-2 py-1 transition-all"
                         >ZINE</a>
                 </li>
@@ -69,90 +72,106 @@ const drops =
     </header>
 
     <main class="flex-grow w-full max-w-6xl mx-auto px-4 relative z-10">
-        <section class="mb-16 flex flex-col md:flex-row gap-8 items-start">
-            <div class="w-full md:w-2/3">
-                <h2
-                    class="text-5xl md:text-7xl lg:text-8xl font-headline leading-[0.95] uppercase mb-8 drop-shadow-md"
-                >
-                    Arte com <span class="text-safety-orange bg-ink px-2"
-                        >Verdade</span
-                    >
-                    <br />& Caos Controlado
-                </h2>
+        {/* HERO SECTION: LATEST DROP */}
+        <section class="mb-24">
+            {
+                latestDrop ? (
+                    <div class="relative w-full border-4 border-ink shadow-hard bg-white group">
+                        <div class="grid grid-cols-1 md:grid-cols-12">
+                            {/* Imagem da Capa */}
+                            <div class="md:col-span-7 border-b-4 md:border-b-0 md:border-r-4 border-ink relative overflow-hidden aspect-square md:aspect-auto md:h-[600px]">
+                                {latestDrop.coverImage ? (
+                                    <img
+                                        src={urlFor(latestDrop.coverImage)
+                                            .width(1000)
+                                            .height(1000)
+                                            .url()}
+                                        alt={latestDrop.title}
+                                        class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-700"
+                                    />
+                                ) : (
+                                    <div class="w-full h-full flex items-center justify-center bg-gray-200 font-headline text-xl">
+                                        NO SIGNAL
+                                    </div>
+                                )}
+                                <div class="absolute top-0 left-0 bg-safety-orange text-white text-sm font-mono px-3 py-1 border-r-4 border-b-4 border-ink">
+                                    ÚLTIMA EDIÇÃO
+                                </div>
+                            </div>
 
-                <div
-                    class="border-l-8 border-safety-orange pl-6 py-2 mb-8 bg-white border-4 border-ink p-6 shadow-hard rotate-1"
-                >
-                    <ul
-                        class="font-headline text-xl md:text-2xl space-y-2 uppercase tracking-wide"
-                    >
-                        <li class="flex items-center gap-2">
-                            01. CRIAMOS COMO COLETIVO.
-                        </li>
-                        <li class="flex items-center gap-2">
-                            02. AGIMOS COMO AGÊNCIA.
-                        </li>
-                        <li class="flex items-center gap-2">
-                            03. PENSAMOS COMO BANDA PUNK.
-                        </li>
-                    </ul>
-                </div>
+                            {/* Conteúdo do Hero */}
+                            <div class="md:col-span-5 p-8 md:p-12 flex flex-col justify-center bg-paper relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                                    <span class="font-headline text-9xl">
+                                        0
+                                        {latestDrop.title.match(/\d+/)?.[0] ||
+                                            "1"}
+                                    </span>
+                                </div>
 
-                <p
-                    class="text-lg md:text-xl mb-10 max-w-xl font-bold border-b-2 border-ink inline-block pb-1"
-                >
-                    Sem pressão de métrica. Sem algoritmo no pescoço. Apenas o
-                    que importa.
-                </p>
+                                <span class="font-mono text-sm uppercase tracking-widest mb-4 border-b-2 border-ink inline-block w-fit pb-1">
+                                    {new Date(
+                                        latestDrop.publishedAt,
+                                    ).toLocaleDateString("pt-BR")}
+                                </span>
 
-                <a
-                    href="https://instagram.com/mixtape252"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-block btn-press bg-safety-orange text-ink border-4 border-ink px-6 py-3 text-xl font-headline uppercase tracking-wider shadow-hard hover:bg-ink hover:text-white transition-all transform hover:-rotate-1"
-                >
-                    SEGUE O CAOS ->
-                </a>
-            </div>
+                                <h2 class="text-5xl md:text-7xl font-headline uppercase leading-[0.9] mb-8 group-hover:text-safety-orange transition-colors">
+                                    {latestDrop.title}
+                                </h2>
 
-            <div class="hidden md:block w-1/3 pt-12">
-                <div class="bg-ink p-2 transform rotate-3 shadow-hard-lg">
-                    <div
-                        class="bg-paper border-2 border-ink p-4 flex flex-col items-center justify-center h-64"
-                    >
-                        <span class="text-8xl mb-4 font-headline">!</span>
-                        <span class="font-headline text-xl text-center"
-                            >ESTE ESPAÇO NÃO ESTÁ À VENDA</span
-                        >
+                                <p class="font-mono text-lg mb-10 leading-relaxed line-clamp-4">
+                                    {latestDrop.description ||
+                                        "Uma nova transmissão pirata. Arte, caos e cultura digital sem filtro."}
+                                </p>
+
+                                <a
+                                    href={`/drop/${latestDrop.slug.current}`}
+                                    class="inline-block w-full text-center btn-press bg-ink text-white border-4 border-ink px-6 py-4 text-2xl font-headline uppercase tracking-wider shadow-hard hover:bg-safety-orange hover:text-ink transition-all transform hover:-translate-y-1"
+                                >
+                                    LER EDIÇÃO ->
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                ) : (
+                    /* Fallback se não houver Drop */
+                    <div class="bg-ink text-white p-12 text-center border-4 border-safety-orange shadow-hard">
+                        <h2 class="text-6xl font-headline uppercase mb-4">
+                            SEM SINAL
+                        </h2>
+                        <p class="font-mono">
+                            Aguardando a primeira transmissão...
+                        </p>
+                    </div>
+                )
+            }
         </section>
 
-        <section id="drops" class="mb-16">
+        {/* FEED SECTION: LATEST POSTS */}
+        <section id="feed" class="mb-24">
             <div class="flex items-center gap-4 mb-12">
                 <h3
-                    class="text-4xl md:text-6xl font-headline uppercase bg-white border-4 border-ink px-4 py-2 inline-block shadow-hard transform -rotate-2"
+                    class="text-4xl md:text-6xl font-headline uppercase bg-white border-4 border-ink px-4 py-2 inline-block shadow-hard transform rotate-1"
                 >
-                    Latest Drops
+                    Feed Diário
                 </h3>
                 <span class="h-4 flex-grow bg-ink repeating-linear-gradient"
                 ></span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {
-                    posts.map((post: any) => (
+                    latestPosts.map((post: any) => (
                         <a
                             href={`/post/${post.slug.current}`}
-                            class="group relative bg-white border-4 border-ink p-4 shadow-hard hover:shadow-hard-lg transition-all duration-300 transform hover:-translate-y-2"
+                            class="group relative bg-white border-4 border-ink p-4 shadow-hard hover:shadow-hard-lg transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
                         >
-                            <div class="overflow-hidden border-2 border-ink mb-4 relative aspect-square">
+                            <div class="overflow-hidden border-2 border-ink mb-4 relative aspect-video">
                                 {post.mainImage ? (
                                     <img
                                         src={urlFor(post.mainImage)
                                             .width(600)
-                                            .height(600)
+                                            .height(400)
                                             .url()}
                                         alt={post.title}
                                         class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
@@ -169,11 +188,11 @@ const drops =
                                 </div>
                             </div>
 
-                            <h4 class="text-2xl font-headline uppercase leading-none mb-2 group-hover:text-safety-orange transition-colors">
+                            <h4 class="text-2xl font-headline uppercase leading-[0.9] mb-4 group-hover:text-safety-orange transition-colors flex-grow">
                                 {post.title}
                             </h4>
 
-                            <p class="text-sm font-bold border-t-2 border-ink pt-2 mt-2 flex justify-between font-body">
+                            <p class="text-sm font-bold border-t-2 border-ink pt-2 mt-auto flex justify-between font-body">
                                 <span>#POST</span>
                                 <span>LER MAIS -></span>
                             </p>
@@ -181,70 +200,17 @@ const drops =
                     ))
                 }
             </div>
+
+            <div class="mt-12 text-center">
+                <a
+                    href="#"
+                    class="inline-block px-8 py-3 bg-white border-4 border-ink font-headline text-xl uppercase hover:bg-ink hover:text-white transition-colors shadow-hard"
+                >
+                    Ver Todos os Posts
+                </a>
+            </div>
         </section>
     </main>
-
-    <section class="w-full max-w-6xl mx-auto px-4 mb-24 relative z-10">
-        <div class="flex items-center gap-4 mb-12">
-            <h3
-                class="text-4xl md:text-6xl font-headline uppercase bg-ink text-paper border-4 border-ink px-4 py-2 inline-block shadow-hard transform rotate-1"
-            >
-                Arquivo // Edições
-            </h3>
-            <span class="h-4 flex-grow bg-ink repeating-linear-gradient"></span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {
-                drops.map((drop: any) => (
-                    <div class="group relative bg-white border-4 border-ink p-6 shadow-hard hover:shadow-hard-lg transition-all duration-300 hover:-translate-y-1">
-                        <div class="flex flex-col gap-6">
-                            <div class="w-full aspect-video overflow-hidden border-4 border-ink relative">
-                                {drop.coverImage ? (
-                                    <img
-                                        src={urlFor(drop.coverImage)
-                                            .width(800)
-                                            .height(450)
-                                            .url()}
-                                        alt={drop.title}
-                                        class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500"
-                                    />
-                                ) : (
-                                    <div class="w-full h-full flex items-center justify-center bg-gray-200 font-headline text-xl">
-                                        NO SIGNAL
-                                    </div>
-                                )}
-                                <div class="absolute top-0 right-0 bg-safety-orange text-white text-xs font-mono px-3 py-1 border-b-4 border-l-4 border-ink">
-                                    VOL. {drop.title.match(/\d+/)?.[0] || "X"}
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-4">
-                                <div class="flex justify-between items-center border-b-2 border-ink pb-2">
-                                    <span class="font-mono text-xs uppercase opacity-70">
-                                        {new Date(
-                                            drop.publishedAt,
-                                        ).toLocaleDateString("pt-BR")}
-                                    </span>
-                                    <span class="font-mono text-xs uppercase font-bold text-safety-orange">
-                                        ZINE DIGITAL
-                                    </span>
-                                </div>
-                                <h4 class="text-3xl font-headline uppercase leading-[0.9] group-hover:text-safety-orange transition-colors line-clamp-2">
-                                    {drop.title}
-                                </h4>
-                                <a
-                                    href={`/drop/${drop.slug.current}`}
-                                    class="block w-full py-3 bg-ink text-white font-headline text-xl uppercase hover:bg-safety-orange hover:text-ink transition-colors border-4 border-ink text-center shadow-hard-sm group-hover:shadow-none transform group-hover:translate-x-1 group-hover:translate-y-1"
-                                >
-                                    Ver Edição ->
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                ))
-            }
-        </div>
-    </section>
 
     <Newsletter />
 
@@ -282,8 +248,8 @@ const drops =
     </footer>
 
     <div
-        class="hidden lg:block absolute top-1/3 right-10 bg-safety-orange text-white p-4 font-headline text-2xl rotate-12 border-4 border-ink shadow-hard z-20 pointer-events-none mix-blend-multiply"
+        class="hidden lg:block absolute top-1/4 right-10 bg-safety-orange text-white p-4 font-headline text-2xl rotate-12 border-4 border-ink shadow-hard z-20 pointer-events-none mix-blend-multiply"
     >
-        NEW<br />DROP
+        LIVE<br />FEED
     </div>
 </BaseLayout>
