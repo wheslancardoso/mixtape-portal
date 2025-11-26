@@ -1,0 +1,82 @@
+---
+// Newsletter Component - Estética Punk/Zine
+---
+
+<section class="bg-ink text-paper py-16 px-4 border-y-4 border-safety-orange relative overflow-hidden">
+  <!-- Decorative Elements -->
+  <div class="absolute top-4 right-4 w-20 h-20 bg-safety-orange opacity-10 rotate-12 pointer-events-none"></div>
+  <div class="absolute bottom-4 left-4 w-32 h-8 bg-safety-orange opacity-10 -rotate-6 pointer-events-none"></div>
+
+  <div class="container mx-auto max-w-4xl relative z-10">
+    <div class="text-center mb-8">
+      <h2 class="text-4xl md:text-6xl font-headline uppercase mb-4 transform -rotate-1">
+        SEM ALGORITMO<br/>NO PESCOÇO
+      </h2>
+      <p class="font-mono text-lg opacity-80">
+        Receba drops diretos no seu email. Sem spam. Sem métrica. Apenas arte.
+      </p>
+    </div>
+
+    <form id="newsletter-form" class="max-w-md mx-auto">
+      <div class="flex flex-col sm:flex-row gap-4">
+        <input
+          type="email"
+          name="email"
+          id="newsletter-email"
+          placeholder="seu@email.com"
+          required
+          class="flex-1 px-6 py-4 bg-paper text-ink border-4 border-black font-mono text-lg focus:outline-none focus:border-safety-orange transition-colors"
+        />
+        <button
+          type="submit"
+          class="px-8 py-4 bg-safety-orange text-ink border-4 border-black font-headline uppercase text-xl hover:bg-ink hover:text-safety-orange transition-all shadow-[6px_6px_0px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]"
+        >
+          INSCREVER
+        </button>
+      </div>
+      
+      <div id="newsletter-message" class="mt-4 text-center font-mono text-sm hidden"></div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('newsletter-form') as HTMLFormElement;
+  const emailInput = document.getElementById('newsletter-email') as HTMLInputElement;
+  const messageDiv = document.getElementById('newsletter-message') as HTMLDivElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = emailInput.value.trim();
+    messageDiv.classList.add('hidden');
+    
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        messageDiv.textContent = '✓ INSCRITO! Você receberá os drops direto no email.';
+        messageDiv.className = 'mt-4 text-center font-mono text-sm text-safety-orange';
+        messageDiv.classList.remove('hidden');
+        emailInput.value = '';
+      } else {
+        messageDiv.textContent = `✗ ${data.error || 'Erro ao processar inscrição'}`;
+        messageDiv.className = 'mt-4 text-center font-mono text-sm text-red-500';
+        messageDiv.classList.remove('hidden');
+      }
+    } catch (error) {
+      messageDiv.textContent = '✗ Erro de conexão. Tente novamente.';
+      messageDiv.className = 'mt-4 text-center font-mono text-sm text-red-500';
+      messageDiv.classList.remove('hidden');
+    }
+  });
+</script>
+

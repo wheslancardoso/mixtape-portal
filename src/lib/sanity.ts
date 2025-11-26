@@ -13,6 +13,16 @@ export const sanityClient = createClient({
   useCdn: true, // Set to false if statically generating pages, using ISR or tag-based revalidation
 });
 
+// Cliente com permissão de escrita (para API routes)
+export const sanityWriteClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  token: import.meta.env.SANITY_API_TOKEN,
+  useCdn: false, // Importante: false para garantir dados frescos na escrita
+  ignoreBrowserTokenWarning: true,
+});
+
 const builder = imageUrlBuilder(sanityClient);
 
 export function urlFor(source: SanityImageSource) {

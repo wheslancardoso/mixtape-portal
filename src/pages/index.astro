@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { sanityClient, urlFor } from '../lib/sanity';
+import Newsletter from '../components/Newsletter.astro';
 
 const posts = await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc){
   title, 
@@ -106,6 +107,8 @@ const posts = await sanityClient.fetch(`*[_type == "post"] | order(publishedAt d
             </div>
         </section>
     </main>
+
+    <Newsletter />
 
     <footer class="bg-ink text-paper border-t-4 border-safety-orange py-12 relative z-10 mt-auto">
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
