@@ -1,6 +1,6 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { sanityClient, urlFor } from '../../lib/sanity';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sanityClient, urlFor } from "../../lib/sanity";
 
 export async function getStaticPaths() {
   const drops = await sanityClient.fetch(`
@@ -33,89 +33,86 @@ interface Props {
 const { drop } = Astro.props;
 
 // Prepara description para meta tags
-const description = drop.editorial 
-  ? drop.editorial.substring(0, 160) + (drop.editorial.length > 160 ? '...' : '')
+const description = drop.editorial
+  ? drop.editorial.substring(0, 160) +
+    (drop.editorial.length > 160 ? "..." : "")
   : `Edição ${drop.title} do Mixtape252`;
 
 // Extrai número da edição do título (ex: "Vol. 01" -> "01")
-const volumeNumber = drop.title.match(/\d+/)?.[0] || 'X';
+const volumeNumber = drop.title.match(/\d+/)?.[0] || "X";
 
-// Função para calcular classes de sobreposição/colagem baseadas no índice
+// Função para calcular classes de rotação sutil (sem sobreposição)
 function getCollageClasses(index: number) {
   const classes: string[] = [];
-  
+
   // Rotação variável: par = rotate-1, ímpar = -rotate-1, primeiro = sem rotação base
   // Post 1 (index === 1) mantém sua rotação especial de rotate-2, então não aplicamos rotação padrão aqui
   if (index > 0 && index !== 1) {
     if (index % 2 === 0) {
-      classes.push('md:rotate-1');
+      classes.push("md:rotate-1");
     } else {
-      classes.push('md:-rotate-1');
+      classes.push("md:-rotate-1");
     }
   }
-  
-  // Margens negativas e z-index para sobreposição (apenas desktop)
-  if (index === 1) {
-    // 2º item: sobe e entra pela esquerda, mantém rotate-2
-    classes.push('md:-mt-12', 'md:-ml-4', 'md:z-10');
-  } else if (index === 2) {
-    // 3º item: sobe e fica por cima
-    classes.push('md:-mt-8', 'md:z-20');
-  } else if (index === 3) {
-    // 4º item: entra pela direita
-    classes.push('md:-mr-4', 'md:z-10');
-  } else if (index === 4) {
-    // 5º item: sobe levemente
-    classes.push('md:-mt-6', 'md:z-5');
-  } else if (index >= 5) {
-    // Itens seguintes: sobreposição alternada
-    if (index % 2 === 0) {
-      classes.push('md:-mt-4', 'md:z-10');
-    } else {
-      classes.push('md:-ml-2', 'md:z-5');
-    }
-  }
-  
-  return classes.join(' ');
+
+  return classes.join(" ");
 }
 ---
 
 <BaseLayout title={`${drop.title} // MIXTAPE252`} description={description}>
   <article class="min-h-screen bg-paper text-ink overflow-x-hidden">
     <!-- Header: THE DROP Massivo + Adesivo VOL.X -->
-    <header class="relative w-full min-h-[60vh] md:min-h-[80vh] bg-ink text-paper flex items-center justify-center p-8 md:p-16 border-b-4 border-ink overflow-hidden">
-      {drop.coverImage && (
-        <div class="absolute inset-0 opacity-20">
-          <img
-            src={urlFor(drop.coverImage).width(1920).height(1080).fit('crop').url()}
-            alt={drop.title}
-            class="w-full h-full object-cover grayscale contrast-150"
-          />
-        </div>
-      )}
-      
+    <header
+      class="relative w-full min-h-[60vh] md:min-h-[80vh] bg-ink text-paper flex items-center justify-center p-8 md:p-16 border-b-4 border-ink overflow-hidden"
+    >
+      {
+        drop.coverImage && (
+          <div class="absolute inset-0 opacity-20">
+            <img
+              src={urlFor(drop.coverImage)
+                .width(1920)
+                .height(1080)
+                .fit("crop")
+                .url()}
+              alt={drop.title}
+              class="w-full h-full object-cover grayscale contrast-150"
+            />
+          </div>
+        )
+      }
+
       <div class="relative z-10 text-center">
         <!-- Título Principal: THE DROP -->
-        <h1 class="text-7xl md:text-9xl lg:text-[12rem] font-headline uppercase leading-[0.85] tracking-tighter mb-4 transform -rotate-1">
+        <h1
+          class="text-7xl md:text-9xl lg:text-[12rem] font-headline uppercase leading-[0.85] tracking-tighter mb-4 transform -rotate-1"
+        >
           THE DROP
         </h1>
-        
+
         <!-- Adesivo VOL.X Rotacionado -->
-        <div class="absolute top-8 right-8 md:top-16 md:right-16 transform rotate-12 z-20">
-          <div class="bg-safety-orange text-ink border-4 border-paper px-6 py-3 shadow-hard">
+        <div
+          class="absolute top-8 right-8 md:top-16 md:right-16 transform rotate-12 z-20"
+        >
+          <div
+            class="bg-safety-orange text-ink border-4 border-paper px-6 py-3 shadow-hard"
+          >
             <span class="font-headline text-3xl md:text-5xl uppercase">
               VOL. {volumeNumber}
             </span>
           </div>
         </div>
-        
+
         <!-- Data -->
-        <div class="mt-8 font-mono text-sm md:text-base uppercase tracking-widest opacity-80">
-          {new Date(drop.publishedAt).toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-          })}
+        <div
+          class="mt-8 font-mono text-sm md:text-base uppercase tracking-widest opacity-80"
+        >
+          {
+            new Date(drop.publishedAt).toLocaleDateString("pt-BR", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
+            })
+          }
         </div>
       </div>
     </header>
@@ -128,15 +125,17 @@ function getCollageClasses(index: number) {
     </div>
 
     <!-- Editorial: Manifesto Colado -->
-    {drop.editorial && (
-      <section class="bg-ink text-paper py-12 md:py-16 px-6 md:px-12 border-b-4 border-ink transform rotate-0.5">
-        <div class="max-w-4xl mx-auto">
-          <div class="font-mono text-base md:text-lg leading-relaxed whitespace-pre-line border-l-4 border-safety-orange pl-6">
-            {drop.editorial}
+    {
+      drop.editorial && (
+        <section class="bg-ink text-paper py-12 md:py-16 px-6 md:px-12 border-b-4 border-ink transform rotate-0.5">
+          <div class="max-w-4xl mx-auto">
+            <div class="font-mono text-base md:text-lg leading-relaxed whitespace-pre-line border-l-4 border-safety-orange pl-6">
+              {drop.editorial}
+            </div>
           </div>
-        </div>
-      </section>
-    )}
+        </section>
+      )
+    }
 
     <!-- Divisor ASCII -->
     <div class="py-4 px-4 text-center border-y-4 border-ink bg-paper">
@@ -148,157 +147,179 @@ function getCollageClasses(index: number) {
     <!-- Grid de Posts: A Colagem -->
     <section class="py-12 md:py-16 px-4 md:px-8">
       <div class="max-w-7xl mx-auto">
-        {drop.featuredPosts && drop.featuredPosts.length > 0 ? (
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {drop.featuredPosts.map((post: any, index: number) => {
-              // Post 0: Destaque Grande (col-span-12 md:col-span-8)
-              if (index === 0) {
-                return (
-                  <a
-                    href={`/post/${post.slug.current}`}
-                    class={`group col-span-12 md:col-span-8 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg overflow-hidden ${getCollageClasses(index)}`}
-                  >
-                    {post.mainImage ? (
-                      <div class="w-full h-[60vh] md:h-[80vh] overflow-hidden relative">
-                        <img
-                          src={urlFor(post.mainImage).width(1200).height(1200).fit('crop').url()}
-                          alt={post.title}
-                          class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent"></div>
-                      </div>
-                    ) : (
-                      <div class="w-full h-[60vh] md:h-[80vh] flex items-center justify-center bg-neutral-200 font-mono text-ink text-4xl">
-                        NO SIGNAL
-                      </div>
-                    )}
-                    <div class="absolute bottom-0 left-0 right-0 p-6 md:p-12 bg-ink/90 text-paper overflow-hidden">
-                      <div class="font-mono text-xs uppercase mb-2 text-safety-orange">
-                        {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
-                      </div>
-                      <h2 class="text-4xl md:text-6xl lg:text-7xl font-headline uppercase leading-[0.85] mb-2 break-words">
-                        {post.title}
-                      </h2>
-                      {post.excerpt && (
-                        <p class="font-mono text-sm md:text-base mt-4 line-clamp-2 opacity-90 break-words">
-                          {post.excerpt}
-                        </p>
-                      )}
-                    </div>
-                  </a>
-                );
-              }
-
-              // Post 1: Vertical Rotacionado (col-span-12 md:col-span-4)
-              if (index === 1) {
-                return (
-                  <a
-                    href={`/post/${post.slug.current}`}
-                    class={`group col-span-12 md:col-span-4 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg md:rotate-2 ${getCollageClasses(index)}`}
-                  >
-                    {post.mainImage ? (
-                      <div class="aspect-[3/4] overflow-hidden relative border-b-4 border-ink">
-                        <img
-                          src={urlFor(post.mainImage).width(600).height(800).fit('crop').url()}
-                          alt={post.title}
-                          class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
-                        />
-                        <div class="absolute top-0 right-0 bg-safety-orange text-white text-xs font-mono px-3 py-1 border-b-4 border-l-4 border-ink">
-                          {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
+        {
+          drop.featuredPosts && drop.featuredPosts.length > 0 ? (
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {drop.featuredPosts.map((post: any, index: number) => {
+                // Post 0: Destaque Grande (col-span-12 md:col-span-8)
+                if (index === 0) {
+                  return (
+                    <a
+                      href={`/post/${post.slug.current}`}
+                      class={`group col-span-12 md:col-span-8 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg overflow-hidden ${getCollageClasses(index)}`}
+                    >
+                      {post.mainImage ? (
+                        <div class="w-full h-[60vh] md:h-[80vh] overflow-hidden relative">
+                          <img
+                            src={urlFor(post.mainImage)
+                              .width(1200)
+                              .height(1200)
+                              .fit("crop")
+                              .url()}
+                            alt={post.title}
+                            class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                          />
+                          <div class="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent" />
                         </div>
+                      ) : (
+                        <div class="w-full h-[60vh] md:h-[80vh] flex items-center justify-center bg-neutral-200 font-mono text-ink text-4xl">
+                          NO SIGNAL
+                        </div>
+                      )}
+                      <div class="absolute bottom-0 left-0 right-0 p-6 md:p-12 bg-ink/90 text-paper overflow-hidden">
+                        <div class="font-mono text-xs uppercase mb-2 text-safety-orange">
+                          {new Date(post.publishedAt).toLocaleDateString(
+                            "pt-BR",
+                          )}
+                        </div>
+                        <h2 class="text-4xl md:text-6xl lg:text-7xl font-headline uppercase leading-[0.85] mb-2 break-words">
+                          {post.title}
+                        </h2>
+                        {post.excerpt && (
+                          <p class="font-mono text-sm md:text-base mt-4 line-clamp-2 opacity-90 break-words">
+                            {post.excerpt}
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <div class="aspect-[3/4] flex items-center justify-center bg-neutral-200 font-mono text-ink border-b-4 border-ink">
-                        NO SIGNAL
+                    </a>
+                  );
+                }
+
+                // Post 1: Vertical Rotacionado (col-span-12 md:col-span-4)
+                if (index === 1) {
+                  return (
+                    <a
+                      href={`/post/${post.slug.current}`}
+                      class={`group col-span-12 md:col-span-4 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg md:rotate-2 ${getCollageClasses(index)}`}
+                    >
+                      {post.mainImage ? (
+                        <div class="aspect-[3/4] overflow-hidden relative border-b-4 border-ink">
+                          <img
+                            src={urlFor(post.mainImage)
+                              .width(600)
+                              .height(800)
+                              .fit("crop")
+                              .url()}
+                            alt={post.title}
+                            class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                          />
+                          <div class="absolute top-0 right-0 bg-safety-orange text-white text-xs font-mono px-3 py-1 border-b-4 border-l-4 border-ink">
+                            {new Date(post.publishedAt).toLocaleDateString(
+                              "pt-BR",
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div class="aspect-[3/4] flex items-center justify-center bg-neutral-200 font-mono text-ink border-b-4 border-ink">
+                          NO SIGNAL
+                        </div>
+                      )}
+                      <div class="p-5 flex flex-col gap-4 overflow-hidden justify-between">
+                        <h3 class="text-xl md:text-2xl font-headline uppercase leading-[0.9] group-hover:text-safety-orange transition-colors break-words line-clamp-3">
+                          {post.title}
+                        </h3>
+                        {post.excerpt && (
+                          <p class="font-mono text-xs leading-tight line-clamp-4 border-l-2 border-ink pl-3 break-words">
+                            {post.excerpt}
+                          </p>
+                        )}
                       </div>
-                    )}
-                    <div class="p-6 flex flex-col gap-4 overflow-hidden">
-                      <h3 class="text-2xl md:text-3xl font-headline uppercase leading-[0.9] group-hover:text-safety-orange transition-colors break-words">
+                    </a>
+                  );
+                }
+
+                // Post 2: Texto Apenas, Fundo Preto (col-span-12 md:col-span-6)
+                if (index === 2) {
+                  return (
+                    <a
+                      href={`/post/${post.slug.current}`}
+                      class={`group col-span-12 md:col-span-6 block relative bg-ink text-safety-orange border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg hover:bg-safety-orange hover:text-ink p-8 md:p-12 flex flex-col justify-center min-h-[300px] overflow-hidden ${getCollageClasses(index)}`}
+                    >
+                      <div class="font-mono text-xs uppercase mb-4 opacity-80">
+                        {new Date(post.publishedAt).toLocaleDateString("pt-BR")}
+                      </div>
+                      <h3 class="text-xl md:text-2xl font-headline uppercase leading-[0.9] mb-4 transform -rotate-1 break-words line-clamp-3">
                         {post.title}
                       </h3>
                       {post.excerpt && (
-                        <p class="font-mono text-xs leading-tight line-clamp-4 border-l-2 border-ink pl-3 break-words">
+                        <p class="font-mono text-sm md:text-base leading-relaxed mt-4 opacity-90 break-words line-clamp-5">
                           {post.excerpt}
                         </p>
                       )}
-                    </div>
-                  </a>
-                );
-              }
+                      <div class="mt-8 pt-4 border-t-2 border-current">
+                        <span class="font-mono text-xs uppercase">
+                          LER MAIS →
+                        </span>
+                      </div>
+                    </a>
+                  );
+                }
 
-              // Post 2: Texto Apenas, Fundo Preto (col-span-12 md:col-span-6)
-              if (index === 2) {
+                // Post 3+: Cards Normais (col-span-12 md:col-span-6)
                 return (
                   <a
                     href={`/post/${post.slug.current}`}
-                    class={`group col-span-12 md:col-span-6 block relative bg-ink text-safety-orange border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg hover:bg-safety-orange hover:text-ink p-8 md:p-12 flex flex-col justify-center min-h-[300px] overflow-hidden ${getCollageClasses(index)}`}
+                    class={`group col-span-12 md:col-span-6 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg hover:bg-safety-orange hover:text-white overflow-hidden ${getCollageClasses(index)}`}
                   >
-                    <div class="font-mono text-xs uppercase mb-4 opacity-80">
-                      {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-headline uppercase leading-[0.9] mb-4 transform -rotate-1 break-words line-clamp-4">
-                      {post.title}
-                    </h3>
-                    {post.excerpt && (
-                      <p class="font-mono text-sm md:text-base leading-relaxed mt-4 opacity-90 break-words line-clamp-5">
-                        {post.excerpt}
-                      </p>
+                    {post.mainImage ? (
+                      <div class="aspect-square overflow-hidden relative border-b-4 border-ink">
+                        <img
+                          src={urlFor(post.mainImage)
+                            .width(600)
+                            .height(600)
+                            .fit("crop")
+                            .url()}
+                          alt={post.title}
+                          class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
+                        />
+                        <div class="absolute top-0 right-0 bg-safety-orange text-white text-xs font-mono px-3 py-1 border-b-4 border-l-4 border-ink group-hover:bg-ink">
+                          {new Date(post.publishedAt).toLocaleDateString(
+                            "pt-BR",
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div class="aspect-square flex items-center justify-center bg-neutral-200 font-mono text-ink border-b-4 border-ink group-hover:bg-safety-orange group-hover:text-white">
+                        NO SIGNAL
+                      </div>
                     )}
-                    <div class="mt-8 pt-4 border-t-2 border-current">
-                      <span class="font-mono text-xs uppercase">LER MAIS →</span>
+                    <div class="p-6 flex flex-col gap-4 overflow-hidden justify-between">
+                      <h3 class="text-xl font-headline uppercase leading-[0.9] group-hover:text-white transition-colors break-words line-clamp-3">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p class="font-mono text-xs md:text-sm leading-tight line-clamp-3 border-l-2 border-ink pl-3 group-hover:border-white break-words">
+                          {post.excerpt}
+                        </p>
+                      )}
+                      <div class="pt-4 flex justify-end">
+                        <span class="inline-block px-3 py-1 bg-ink text-white font-mono text-xs uppercase group-hover:bg-white group-hover:text-ink transition-colors border-2 border-ink group-hover:border-white">
+                          LER MAIS_
+                        </span>
+                      </div>
                     </div>
                   </a>
                 );
-              }
-
-              // Post 3+: Cards Normais (col-span-12 md:col-span-6)
-              return (
-                <a
-                  href={`/post/${post.slug.current}`}
-                  class={`group col-span-12 md:col-span-6 block relative bg-white border-4 border-ink h-full hover:z-30 hover:scale-[1.02] hover:-rotate-1 transition-all duration-300 shadow-hard hover:shadow-hard-lg hover:bg-safety-orange hover:text-white overflow-hidden ${getCollageClasses(index)}`}
-                >
-                  {post.mainImage ? (
-                    <div class="aspect-square overflow-hidden relative border-b-4 border-ink">
-                      <img
-                        src={urlFor(post.mainImage).width(600).height(600).fit('crop').url()}
-                        alt={post.title}
-                        class="w-full h-full object-cover grayscale contrast-125 group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
-                      />
-                      <div class="absolute top-0 right-0 bg-safety-orange text-white text-xs font-mono px-3 py-1 border-b-4 border-l-4 border-ink group-hover:bg-ink">
-                        {new Date(post.publishedAt).toLocaleDateString('pt-BR')}
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="aspect-square flex items-center justify-center bg-neutral-200 font-mono text-ink border-b-4 border-ink group-hover:bg-safety-orange group-hover:text-white">
-                      NO SIGNAL
-                    </div>
-                  )}
-                  <div class="p-6 flex flex-col gap-4 overflow-hidden">
-                    <h3 class="text-xl font-headline uppercase leading-[0.9] group-hover:text-white transition-colors break-words">
-                      {post.title}
-                    </h3>
-                    {post.excerpt && (
-                      <p class="font-mono text-xs md:text-sm leading-tight line-clamp-3 border-l-2 border-ink pl-3 group-hover:border-white break-words">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    <div class="pt-4 flex justify-end">
-                      <span class="inline-block px-3 py-1 bg-ink text-white font-mono text-xs uppercase group-hover:bg-white group-hover:text-ink transition-colors border-2 border-ink group-hover:border-white">
-                        LER MAIS_
-                      </span>
-                    </div>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        ) : (
-          <div class="text-center py-16 border-4 border-ink bg-white p-8 transform rotate-1">
-            <p class="font-mono text-xl text-ink">
-              Nenhum post selecionado para esta edição.
-            </p>
-          </div>
-        )}
+              })}
+            </div>
+          ) : (
+            <div class="text-center py-16 border-4 border-ink bg-white p-8 transform rotate-1">
+              <p class="font-mono text-xl text-ink">
+                Nenhum post selecionado para esta edição.
+              </p>
+            </div>
+          )
+        }
       </div>
     </section>
 
