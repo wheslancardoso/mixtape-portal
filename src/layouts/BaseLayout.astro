@@ -1,20 +1,29 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;
-  type?: 'website' | 'article';
+  type?: "website" | "article";
 }
 
-const { title = "MIXTAPE252", description = "Digital Zine & Creative Collective", image, type = 'website' } = Astro.props;
+const {
+  title = "MIXTAPE252",
+  description = "Digital Zine & Creative Collective",
+  image,
+  type = "website",
+} = Astro.props;
 
 // Gera URL absoluta para a imagem OG
-const ogImageUrl = image 
+const ogImageUrl = image
   ? new URL(image, Astro.site || Astro.url).toString()
   : null;
-const siteUrl = Astro.site || (Astro.url ? new URL(Astro.url.pathname, Astro.url.origin).toString() : 'https://mixtape252.com');
+const siteUrl =
+  Astro.site ||
+  (Astro.url
+    ? new URL(Astro.url.pathname, Astro.url.origin).toString()
+    : "https://mixtape252.com");
 ---
 
 <!doctype html>
@@ -23,20 +32,23 @@ const siteUrl = Astro.site || (Astro.url ? new URL(Astro.url.pathname, Astro.url
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0"
+      rel="stylesheet"
+    />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content={type} />
     <meta property="og:url" content={siteUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
-    
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={siteUrl} />
@@ -44,8 +56,55 @@ const siteUrl = Astro.site || (Astro.url ? new URL(Astro.url.pathname, Astro.url
     <meta name="twitter:description" content={description} />
     {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
   </head>
-  <body class="bg-paper text-ink font-body overflow-x-hidden relative min-h-screen flex flex-col selection:bg-safety-orange selection:text-white cursor-crosshair">
+  <body
+    class="bg-paper text-ink font-body overflow-x-hidden relative min-h-screen flex flex-col selection:bg-safety-orange selection:text-white cursor-crosshair pt-20"
+  >
     <div class="noise-overlay"></div>
+
+    <!-- Global Navigation -->
+    <header
+      class="fixed top-0 left-0 w-full bg-ink text-paper border-b-4 border-safety-orange z-50 h-20 flex items-center shadow-hard"
+    >
+      <div
+        class="w-full max-w-7xl mx-auto px-4 flex justify-between items-center"
+      >
+        <!-- Logo -->
+        <a
+          href="/"
+          class="font-headline text-3xl md:text-4xl tracking-tighter hover:text-safety-orange transition-colors uppercase"
+        >
+          Mixtape252
+        </a>
+
+        <!-- Nav -->
+        <nav>
+          <ul class="flex gap-6 md:gap-8">
+            <li>
+              <a
+                href="/posts"
+                class="font-mono text-sm md:text-base font-bold hover:text-safety-orange transition-colors uppercase"
+                >Feed</a
+              >
+            </li>
+            <li>
+              <a
+                href="/edicoes"
+                class="font-mono text-sm md:text-base font-bold hover:text-safety-orange transition-colors uppercase"
+                >Zines</a
+              >
+            </li>
+            <li>
+              <a
+                href="/sobre"
+                class="font-mono text-sm md:text-base font-bold hover:text-safety-orange transition-colors uppercase"
+                >Sobre</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
     <slot />
   </body>
 </html>
