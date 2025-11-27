@@ -41,6 +41,22 @@ export default defineType({
       rows: 3,
     }),
     defineField({
+      name: 'format',
+      title: 'Format',
+      type: 'string',
+      options: {
+        list: [
+          { title: '⚡ Flash/Notícia', value: 'news' },
+          { title: '📝 Ensaio/Original', value: 'article' },
+          { title: '💿 Review/Crítica', value: 'review' },
+          { title: '🎤 Entrevista', value: 'interview' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'news',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',
