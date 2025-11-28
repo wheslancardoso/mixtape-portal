@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title?: string;
@@ -108,5 +109,6 @@ const siteUrl =
     </header>
 
     <slot />
+    <Footer />
   </body>
 </html>
