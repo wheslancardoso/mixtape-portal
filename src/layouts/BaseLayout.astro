@@ -80,35 +80,118 @@ const siteUrl =
         </a>
 
         <!-- Nav -->
-        <nav>
-          <ul class="flex gap-6 md:gap-12">
+        <!-- Nav Desktop -->
+        <nav class="hidden md:flex">
+          <ul class="flex gap-12">
             <li>
               <a
                 href="/edicoes"
-                class="font-headline text-lg md:text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
+                class="font-headline text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
                 >Drops</a
               >
             </li>
             <li>
               <a
                 href="/posts"
-                class="font-headline text-lg md:text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
+                class="font-headline text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
                 >Feed</a
               >
             </li>
             <li>
               <a
                 href="/sobre"
-                class="font-headline text-lg md:text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
+                class="font-headline text-2xl hover:text-safety-orange transition-colors uppercase tracking-wide"
                 >Manifesto</a
               >
             </li>
           </ul>
         </nav>
+
+        <!-- Mobile Trigger -->
+        <button
+          id="mobile-menu-trigger"
+          class="md:hidden text-paper hover:text-safety-orange transition-colors cursor-pointer"
+        >
+          <span class="material-symbols-outlined text-4xl">menu</span>
+        </button>
       </div>
     </header>
 
     <slot />
     <Footer />
+
+    <!-- Mobile Menu Overlay -->
+    <div
+      id="mobile-menu-overlay"
+      class="fixed inset-0 z-[70] bg-black text-white hidden flex-col items-center justify-center"
+    >
+      <button
+        id="mobile-menu-close"
+        class="absolute top-8 right-8 text-white hover:text-safety-orange transition-colors cursor-pointer"
+      >
+        <span class="material-symbols-outlined text-5xl">close</span>
+      </button>
+
+      <ul class="flex flex-col gap-8 text-center">
+        <li>
+          <a
+            href="/edicoes"
+            class="font-headline font-bold text-6xl uppercase hover:text-safety-orange transition-colors"
+            >Drops</a
+          >
+        </li>
+        <li>
+          <a
+            href="/posts"
+            class="font-headline font-bold text-6xl uppercase hover:text-safety-orange transition-colors"
+            >Feed</a
+          >
+        </li>
+        <li>
+          <a
+            href="/sobre"
+            class="font-headline font-bold text-6xl uppercase hover:text-safety-orange transition-colors"
+            >Manifesto</a
+          >
+        </li>
+        <li>
+          <a
+            href="/backstage"
+            class="font-headline font-bold text-6xl uppercase hover:text-safety-orange transition-colors text-white/50"
+            >[ Backstage ]</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      const trigger = document.getElementById("mobile-menu-trigger");
+      const close = document.getElementById("mobile-menu-close");
+      const overlay = document.getElementById("mobile-menu-overlay");
+      const body = document.body;
+
+      if (trigger && close && overlay) {
+        trigger.addEventListener("click", () => {
+          overlay.classList.remove("hidden");
+          overlay.classList.add("flex");
+          body.classList.add("overflow-hidden");
+        });
+
+        close.addEventListener("click", () => {
+          overlay.classList.add("hidden");
+          overlay.classList.remove("flex");
+          body.classList.remove("overflow-hidden");
+        });
+
+        // Close on link click
+        overlay.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", () => {
+            overlay.classList.add("hidden");
+            overlay.classList.remove("flex");
+            body.classList.remove("overflow-hidden");
+          });
+        });
+      }
+    </script>
   </body>
 </html>
