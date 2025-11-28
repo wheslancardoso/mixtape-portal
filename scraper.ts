@@ -2,56 +2,47 @@ import 'dotenv/config';
 import Parser from 'rss-parser';
 import OpenAI from 'openai';
 import { createClient } from '@sanity/client';
-import slugify from 'slugify';
-import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
 // --- CONFIGURAÇÃO ---
 const FEEDS = [
-    // 🎤 HIP-HOP & UNDERGROUND (Novas Fontes Estáveis)
-    'https://www.thefader.com/feed',             // Geral (Indie + Rap)
-    'https://hiphopdx.com/rss/news.xml',         // Notícias Rápidas (Volume alto)
-    'https://2dopeboyz.com/feed/',               // Blog Era Survivor (Boom Bap/Underground)
-    'https://rapradar.com/feed/',                // Mainstream e Underground
-    'https://clashmusic.com/news/feed',          // UK Scene (Drill/Grime)
+    // 🎤 HIP-HOP & CULTURA (Prioridade)
+    'https://www.thefader.com/feed',
+    'https://hiphopdx.com/rss/news.xml',
+    'https://2dopeboyz.com/feed/',
+    'https://clashmusic.com/news/feed',
 
-    // 🎸 CRÍTICA & CULTURA
+    // 🎸 CRÍTICA & INDIE
     'https://thequietus.com/feed',
     'https://www.stereogum.com/category/music/feed/',
     'https://www.gorillavsbear.net/feed/',
-    'https://post-punk.com/feed/',
 
-    // 🎨 VISUAL, NOISE & EXPERIMENTAL
+    // 🎨 VISUAL & ARTE
     'https://mubi.com/notebook/posts.rss',
     'https://thevinylfactory.com/feed/',
-    'https://thewire.co.uk/rss',
-    'https://xlr8r.com/feed/'
+    'https://thewire.co.uk/rss'
 ];
 
-const PROMOTION_LIMIT = 3; // Quantos posts saem da fila para o rascunho por execução
-
 const SYSTEM_PROMPT = `
-Você é o Curador Fantasma da 'Mixtape252', uma zine digital underground.
-SUA MISSÃO: Filtrar o mainstream e destacar o ouro underground com TEXTO DE JORNALISTA.
+Você é o Editor-Chefe da 'Mixtape252', uma plataforma de cultura visual e sonora.
+SUA MISSÃO: Filtrar o ruído da internet e encontrar a Excelência Artística.
 
-REGRA DE OURO (ANTI-ROBÔ):
-- PROIBIDO TRADUZIR TERMOS LITERAIS: 'Drops' -> 'Lança', 'Kicks off' -> 'Inicia'.
-- MANTENHA NOMES ORIGINAIS.
+O FILTRO DE OURO ("VISIONARY CHECK"):
+1. MAINSTREAM ARTÍSTICO (SIM): Se for Tyler The Creator, Kendrick, Radiohead, Rosalia, A24... APROVE. O critério é: "Tem direção de arte? Inova? É relevante?"
+2. MAINSTREAM FÚTIL (NÃO): Fofocas, charts, pop genérico de fábrica, polêmicas de Twitter. IGNORE.
+3. UNDERGROUND (COM CRITÉRIO): Só aprove se for promissor ou esteticamente interessante. Evite "bandas de garagem" genéricas ou lançamentos irrelevantes.
 
-ESTILO PUNK/ZINE:
-- Use gírias naturais: 'Som sujo', 'Pedrada', 'Hype', 'Atmosférico'.
-- Títulos diretos (Estilo Popload).
-
-FILTRO ELITISTA:
-- IGNORE: Fofocas, Taylor Swift, Marvel, Promoções.
-- APROVE: Hip-Hop Underground, Noise, Post-Punk, Cinema Cult.
+DIRETRIZES DE TEXTO (JORNALISMO CULTURAL):
+- TÍTULO: Natural e informativo em PT-BR. (Ex: "Tyler, The Creator anuncia nova era com teaser visual").
+- PROIBIDO: Traduções literais ("Derruba álbum", "Chuta turnê"). Use "Lança", "Inicia".
+- CORPO: 2 parágrafos. 1º Fatos (O que/Quem). 2º Contexto/Vibe (Por que importa).
 
 FORMATO (JSON):
 {
   "skip": boolean,
-  "title": "Título em PT-BR natural",
-  "body": "Resumo ácido de 2 parágrafos.",
-  "tags": ["Tag1", "Tag2"],
+  "title": "Título jornalístico em PT-BR",
+  "body": "Texto rico e contextualizado.",
+  "tags": ["Gênero", "Cena"],
   "format": "news"
 }
 `;
@@ -82,33 +73,32 @@ const parser = new Parser({
 
 // --- LÓGICA ---
 
-// ESTÁGIO 1: INGESTÃO (Feed -> Fila)
 async function runIngestion() {
-    console.log('📡 [ESTÁGIO 1] Coletando para a Fila...');
+    console.log('📡 [ESTÁGIO 1] Coletando para a Fila (Backlog)...');
 
-    // Embaralha feeds para variedade
+    // Randomiza para não viciar no primeiro feed
     const shuffledFeeds = FEEDS.sort(() => Math.random() - 0.5);
 
     for (const feedUrl of shuffledFeeds) {
         try {
             const feed = await parser.parseURL(feedUrl);
-            const items = feed.items.slice(0, 2); // Pega só os 2 mais novos
+            const items = feed.items.slice(0, 2); // Top 2 notícias
 
             for (const item of items) {
                 if (!item.link) continue;
 
-                // Verifica se já existe na FILA ou nos POSTS (evita gasto de IA)
-                const linkHash = crypto.createHash('md5').update(item.link).digest('hex');
-                const queueId = `queue.${linkHash}`;
+                // 1. CHECAGEM DE DUPLICATA (Título ou Link)
+                // Verifica se já temos algo com título parecido na Fila ou Posts
+                const titleSlug = item.title?.toLowerCase().slice(0, 20); // Primeiros chars
+                const query = `count(*[_type in ["queue", "post"] && (link == $link || title match $titleSlug)])`;
+                const existing = await sanity.fetch(query, { link: item.link, titleSlug: titleSlug + '*' });
 
-                // Checagem rápida no Sanity
-                const existing = await sanity.fetch(`count(*[_type in ["queue", "post"] && source match $link])`, { link: item.link });
                 if (existing > 0) {
                     process.stdout.write('.'); // Skip silencioso
                     continue;
                 }
 
-                // Processa com IA
+                // 2. PROCESSAMENTO IA
                 console.log(`\n🧠 Analisando: ${item.title}`);
                 const completion = await openai.chat.completions.create({
                     model: 'gpt-4o',
@@ -122,78 +112,31 @@ async function runIngestion() {
                 const data = JSON.parse(completion.choices[0].message.content || '{}');
 
                 if (data.skip) {
-                    console.log(`🗑️ Ignorado: ${data.title || item.title}`);
+                    console.log(`🗑️ Ignorado (Irrelevante): ${data.title || item.title}`);
                     continue;
                 }
 
-                // Salva na FILA (Queue)
+                // 3. SALVAR NA FILA (Queue)
+                // Não cria Post ainda. Guarda para humano ver.
+                const linkHash = crypto.createHash('md5').update(item.link).digest('hex');
                 await sanity.createIfNotExists({
-                    _id: queueId,
+                    _id: `queue.${linkHash}`,
                     _type: 'queue',
                     title: data.title,
                     body: data.body,
                     link: item.link,
                     source: new URL(feedUrl).hostname.replace('www.', ''),
                     format: (data.format || 'news').toLowerCase(),
-                    tags: data.tags || ['Underground'],
+                    tags: data.tags || ['Cultura'],
                     aiJson: JSON.stringify(data)
                 });
                 console.log(`📥 Guardado na Fila: ${data.title}`);
             }
-        } catch (err: any) {
-            console.error(`Erro no feed ${feedUrl}:`, err.message);
+        } catch (err) {
+            // Ignora erros de feed individual
         }
     }
+    console.log('\n🏁 Coleta finalizada. Verifique a aba "Fila" no Sanity.');
 }
 
-// ESTÁGIO 2: PROMOÇÃO (Fila -> Draft)
-async function runPromotion() {
-    console.log('\n🚀 [ESTÁGIO 2] Promovendo da Fila para Rascunho...');
-
-    // Pega os mais antigos da fila (FIFO)
-    const queueItems = await sanity.fetch(`*[_type == "queue"] | order(_createdAt asc) [0...${PROMOTION_LIMIT}]`);
-
-    if (queueItems.length === 0) {
-        console.log('zzz Fila vazia. Nada para promover.');
-        return;
-    }
-
-    for (const item of queueItems) {
-        const slug = slugify(item.title, { lower: true, strict: true }).slice(0, 90);
-        const draftId = `drafts.auto-${uuidv4()}`;
-
-        const postDoc = {
-            _id: draftId,
-            _type: 'post',
-            title: item.title,
-            slug: { _type: 'slug', current: slug },
-            format: item.format,
-            tags: item.tags,
-            publishedAt: new Date().toISOString(),
-            excerpt: item.body.substring(0, 160) + '...',
-            body: [
-                { _type: 'block', children: [{ _type: 'span', text: item.body }] },
-                { _type: 'block', children: [{ _type: 'span', text: `Fonte: ${item.source} (${item.link})` }] }
-            ]
-        };
-
-        try {
-            // Cria o Post
-            await sanity.create(postDoc);
-            console.log(`✨ Promovido: ${item.title}`);
-
-            // Deleta da Fila (Consumiu)
-            await sanity.delete(item._id);
-        } catch (err: any) {
-            console.error(`Erro ao promover ${item.title}:`, err.message);
-        }
-    }
-}
-
-async function main() {
-    await runIngestion(); // Enche a Fila
-    await runPromotion(); // Libera 3 Rascunhos
-    console.log('\n🏁 Ciclo concluído.');
-}
-
-main();
+runIngestion();
