@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { sanityClient, urlFor } from "../../lib/sanity";
+import { ArrowUpRight } from "lucide-react";
 
 export async function getStaticPaths() {
   const drops = await sanityClient.fetch(`
@@ -17,6 +18,13 @@ export async function getStaticPaths() {
         excerpt,
         publishedAt,
         format
+      },
+      "newsDigest": newsDigest[]->{
+        title,
+        link,
+        source,
+        description,
+        tags
       }
     }
   `);
@@ -384,6 +392,60 @@ function getCollageClasses(index: number) {
         }
       </div>
     </section>
+
+    <!-- RADAR UNDERGROUND (News Digest) -->
+    {
+      drop.newsDigest && drop.newsDigest.length > 0 && (
+        <section class="bg-ink text-paper py-12 md:py-16 px-4 md:px-8 border-t-4 border-paper">
+          <div class="max-w-4xl mx-auto">
+            <!-- Header Radar -->
+            <div class="mb-12 text-center">
+              <h2 class="text-3xl md:text-5xl font-headline uppercase inline-block border-b-4 border-safety-orange pb-2 tracking-wide">
+                /// RADAR UNDERGROUND (SINAIS RÁPIDOS) ///
+              </h2>
+            </div>
+
+            <!-- Lista de News -->
+            <ul class="space-y-6">
+              {drop.newsDigest.map((news: any) => (
+                <li class="border-b border-dashed border-gray-600 pb-6 last:border-0 group">
+                  <div class="flex flex-col md:flex-row md:items-start gap-2 md:gap-4 justify-between">
+                    <div class="flex-grow">
+                      <a 
+                        href={news.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="text-xl md:text-2xl font-headline uppercase hover:text-safety-orange transition-colors inline-flex items-center gap-2"
+                      >
+                        {news.title}
+                        <ArrowUpRight size={20} className="opacity-50 group-hover:opacity-100" />
+                      </a>
+                      
+                      <div class="flex items-center gap-3 mt-1 mb-2">
+                        <span class="font-mono text-xs text-gray-400 uppercase">
+                          VIA {news.source || "DESCONHECIDO"}
+                        </span>
+                        {news.tags && news.tags.map((tag: string) => (
+                          <span class="text-[10px] uppercase border border-white/30 px-1 py-0.5 rounded-sm opacity-70">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {news.description && (
+                        <p class="font-mono text-sm opacity-80 max-w-2xl leading-relaxed">
+                          {news.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
 
     <!-- Divisor ASCII -->
     <div class="py-8 px-4 text-center border-y-4 border-ink bg-ink text-paper">
