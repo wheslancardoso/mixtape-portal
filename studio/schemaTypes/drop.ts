@@ -57,6 +57,13 @@ export default defineType({
       ],
       validation: (Rule) => Rule.min(1).error('Selecione pelo menos um post'),
     }),
+    defineField({
+      name: 'newsDigest',
+      title: 'Digest de Notícias (Para o E-mail)',
+      description: 'Selecione as notícias rápidas que entram nesta edição.',
+      type: 'array',
+      of: [{ type: 'reference', to: { type: 'newsItem' } }]
+    }),
   ],
 
   preview: {
