@@ -1,6 +1,7 @@
 ---
 import { PortableText } from "@portabletext/react";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ChannelBadge from "../../components/ChannelBadge.astro";
 import { sanityClient, sanityWriteClient, urlFor } from "../../lib/sanity";
 
 export async function getStaticPaths() {
@@ -8,7 +9,10 @@ export async function getStaticPaths() {
     ...,
     slug,
     tags,
-    format
+    slug,
+    tags,
+    format,
+    channel
   }`);
 
   return posts.map((post: any) => ({
@@ -179,6 +183,11 @@ const components = {
                     >Tags</span
                   >
                   <div class="flex flex-wrap gap-2">
+                    {/* 0. Channel Badge */}
+                    <div class="mb-2">
+                      <ChannelBadge channel={post.channel} />
+                    </div>
+
                     {/* 1. Format Tag (Destaque) */}
                     <span
                       class="px-2 py-1 bg-safety-orange text-ink border-2 border-ink font-mono text-xs uppercase font-bold"

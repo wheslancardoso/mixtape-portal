@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { sanityClient, sanityWriteClient, urlFor } from "../lib/sanity";
 import Newsletter from "../components/Newsletter.astro";
+import ChannelBadge from "../components/ChannelBadge.astro";
 
 // Fetch Latest Drop (Hero)
 // Fetch Latest Drop (Hero)
@@ -21,8 +22,10 @@ const latestPosts =
   slug, 
   publishedAt, 
   mainImage, 
+  mainImage, 
   excerpt,
-  format
+  format,
+  channel
 }`);
 
 console.log("------------------------------------------------");
@@ -171,10 +174,8 @@ function getFormatStyle(format: string) {
                                             NO SIGNAL
                                         </div>
                                     )}
-                                    <div
-                                        class={`absolute top-0 left-0 ${style.color} text-xs font-bold px-2 py-1 border-r-2 border-b-2 border-ink font-mono uppercase z-10`}
-                                    >
-                                        {style.label}
+                                    <div class="absolute top-0 left-0 z-10">
+                                        <ChannelBadge channel={post.channel} />
                                     </div>
                                 </div>
 
