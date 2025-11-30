@@ -62,14 +62,21 @@ export default defineType({
       type: 'array',
       of: [{ type: 'string' }],
       options: {
-        layout: 'tags',
+        // Removemos o layout: 'tags' que buga no mobile.
+        // Adicionamos uma lista de sugestões comuns para clicar em vez de digitar.
+        list: [
+          { title: 'Hip-Hop', value: 'Hip-Hop' },
+          { title: 'Rock/Indie', value: 'Rock' },
+          { title: 'Eletrônica', value: 'Eletrônica' },
+          { title: 'Cinema', value: 'Cinema' },
+          { title: 'Design', value: 'Design' },
+          { title: 'Tech', value: 'Tech' },
+          { title: 'Underground', value: 'Underground' },
+          { title: 'Manifesto', value: 'Manifesto' },
+        ],
       },
-      description:
-        'Adicione categorias específicas (ex: Hip-Hop, Noise, Cinema) para filtros futuros.',
-      validation: (Rule) =>
-        Rule.required()
-          .min(1)
-          .error('Adicione pelo menos uma tag para categorizar o post.'),
+      description: 'Selecione da lista ou digite uma nova tag personalizada.',
+      validation: (Rule) => Rule.min(1).error('Selecione pelo menos uma tag.'),
     }),
     defineField({
       name: 'body',
