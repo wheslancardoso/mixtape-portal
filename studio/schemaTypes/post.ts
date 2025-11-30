@@ -57,6 +57,22 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'channel',
+      title: 'Canal de Transmissão',
+      type: 'string',
+      description: 'Em qual frequência isso será transmitido? Define a cor e a estética do card.',
+      options: {
+        list: [
+          { title: '📟 SYSTEM_LOG (Tech/Code)', value: 'system_log' },
+          { title: '🎸 DISTORÇÃO (Música/Cena)', value: 'distorcao' },
+          { title: '👾 PIXEL_TRASH (Art/Design)', value: 'pixel_trash' },
+        ],
+        layout: 'radio', // CRÍTICO: Manter como radio para facilitar uso no mobile (1 tap)
+      },
+      validation: (Rule) => Rule.required(),
+      initialValue: 'distorcao',
+    }),
+    defineField({
       name: 'tags',
       title: 'Tags (Categorias)',
       type: 'array',
