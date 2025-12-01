@@ -2,7 +2,9 @@
 import { PortableText } from "@portabletext/react";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ChannelBadge from "../../components/ChannelBadge.astro";
-import { sanityWriteClient, urlFor } from "../../lib/sanity";
+import { urlFor } from "../../lib/sanity";
+// Importamos o cliente autenticado para garantir que posts novos apareçam (sem cache)
+import { sanityWriteClient } from "../../lib/sanity.server";
 import Blockquote from "../../components/Blockquote";
 import {
   H2,
@@ -13,58 +15,37 @@ import {
 } from "../../components/PortableTextComponents";
 
 export async function getStaticPaths() {
-  // FIX: Filtra posts com slug definido e exclui rascunhos explicitamente
-  const posts =
-    await sanityWriteClient.fetch(`*[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))]{ 
-    slug,
-    channel 
-  }`);
+  // Query blindada: Traz posts publicados com slug definido
+  const posts = await sanityWriteClient.fetch(`
+    *[_type == "post" && defined(slug.current) && !(_id in path("drafts.**"))]{ 
+      slug,
+      channel 
+    }
+  `);
 
   return posts.map((post: any) => ({
     params: { slug: post.slug.current },
+    props: {
+      postSlug: post.slug.current,
+      channel: post.channel,
+    },
   }));
 }
 
-const { slug } = Astro.params;
+const { postSlug } = Astro.props;
+
+// Buscamos o post completo aqui para garantir dados frescos na renderização
 const post = await sanityWriteClient.fetch(
   `*[_type == "post" && slug.current == $slug][0]`,
-  { slug },
+  { slug: postSlug },
 );
 
 if (!post) return Astro.redirect("/404");
 
-// 1. Definição dos Temas (Mantendo estética Zine)
-function getTheme(channel: string) {
-  switch (channel) {
-    case "system_log": // Tech / Code
-      return {
-        accent: "#34d399", // Verde Neon
-        border: "#065f46", // Verde Escuro
-        bg: "#09090b", // Preto Zinco
-        text: "#34d399", // Texto Verde
-        prose: "prose-invert prose-emerald",
-      };
-    case "pixel_trash": // Art / Vaporwave
-      return {
-        accent: "#f472b6", // Rosa Neon
-        border: "#831843", // Roxo Escuro
-        bg: "#1a0b2e", // Roxo Profundo
-        text: "#f472b6", // Texto Rosa
-        prose: "prose-invert prose-pink",
-      };
-    default: // Distorção (Padrão)
-      return {
-        accent: "#ff4d00", // Laranja Safety
-        border: "#111111", // Preto Tinta
-        bg: "#f4f1ea", // Papel
-        text: "#111111", // Texto Preto
-        prose: "prose-neutral",
-      };
-  }
-}
+// Lógica de Canal (Default: Distorção)
+const channel = post.channel || "distorcao";
 
-const theme = getTheme(post.channel);
-
+// Componentes do Portable Text
 const components = {
   block: { blockquote: Blockquote, h2: H2, h3: H3 },
   list: { bullet: BulletList, number: NumberList },
@@ -75,19 +56,13 @@ const components = {
 <BaseLayout
   title={post.title}
   description={post.excerpt}
-  image={post.mainImage ? urlFor(post.mainImage).url() : null}
-  accentColor={theme.accent}
-  borderColor={theme.border}
-  pageBg={theme.bg}
+  image={post.mainImage ? urlFor(post.mainImage).url() : undefined}
+  channel={channel}
 >
-  <article
-    class="min-h-screen overflow-x-hidden selection:text-white"
-    style={`color: ${theme.text}; selection:background-color: ${theme.accent};`}
-  >
+  <article class="min-h-screen overflow-x-hidden">
     {/* HERO SECTION */}
     <header
-      class="relative w-full h-[70vh] border-b-4 overflow-hidden group"
-      style={`border-color: ${theme.border}`}
+      class="relative w-full h-[70vh] border-b-4 border-[var(--theme-border)] overflow-hidden group"
     >
       {
         post.mainImage ? (
@@ -97,11 +72,12 @@ const components = {
               alt={post.title}
               class="w-full h-full object-cover grayscale contrast-125 brightness-75 transition-all duration-700 group-hover:grayscale-0"
             />
-            <div class="absolute inset-0 bg-black/40 mix-blend-multiply" />
+            {/* Overlay com a cor do tema via CSS mix-blend */}
+            <div class="absolute inset-0 bg-[var(--theme-bg)]/20 mix-blend-multiply" />
           </div>
         ) : (
-          <div class="absolute inset-0 bg-ink flex items-center justify-center">
-            <span class="font-headline text-paper text-9xl opacity-10">
+          <div class="absolute inset-0 bg-[var(--theme-border)] flex items-center justify-center">
+            <span class="font-headline text-[var(--theme-bg)] text-9xl opacity-10">
               NO SIGNAL
             </span>
           </div>
@@ -111,10 +87,10 @@ const components = {
       <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 z-20">
         <div class="max-w-7xl mx-auto">
           <div class="mb-4">
-            <ChannelBadge channel={post.channel} />
+            <ChannelBadge channel={channel} />
           </div>
           <h1
-            class="text-5xl md:text-8xl lg:text-9xl font-headline uppercase leading-[0.85] text-white drop-shadow-[6px_6px_0px_#000] tracking-tighter"
+            class="text-5xl md:text-8xl lg:text-9xl font-headline uppercase leading-[0.85] text-white drop-shadow-[6px_6px_0px_rgba(0,0,0,1)] tracking-tighter"
           >
             {post.title}
           </h1>
@@ -129,7 +105,7 @@ const components = {
       {/* Coluna Texto */}
       <div class="lg:col-span-8">
         <div
-          class={`prose prose-xl max-w-none font-mono leading-relaxed ${theme.prose} prose-headings:font-headline hover:prose-a:text-[var(--theme-accent)]`}
+          class="prose prose-xl max-w-none font-mono leading-relaxed text-[var(--theme-text)] prose-headings:font-headline prose-a:text-[var(--theme-accent)] prose-strong:text-[var(--theme-text)]"
         >
           <PortableText value={post.body} components={components} />
         </div>
@@ -138,14 +114,11 @@ const components = {
       {/* Sidebar */}
       <aside class="lg:col-span-4 relative">
         <div class="sticky top-28 flex flex-col gap-8">
+          {/* Info Box */}
           <div
-            class="backdrop-blur-sm border-4 p-6 shadow-hard bg-white/5"
-            style={`border-color: ${theme.border}`}
+            class="backdrop-blur-sm border-4 border-[var(--theme-border)] p-6 shadow-hard bg-[var(--theme-bg)]/80"
           >
-            <div
-              class="border-b-2 pb-4 mb-4"
-              style={`border-color: ${theme.border}`}
-            >
+            <div class="border-b-2 border-[var(--theme-border)] pb-4 mb-4">
               <span class="block font-mono text-xs uppercase opacity-70"
                 >Publicado em</span
               >
@@ -157,7 +130,7 @@ const components = {
             <div class="flex flex-wrap gap-2">
               {
                 post.tags?.map((tag: string) => (
-                  <span class="px-2 py-1 bg-black text-white font-mono text-xs uppercase border border-white/20">
+                  <span class="px-2 py-1 bg-[var(--theme-border)] text-[var(--theme-bg)] font-mono text-xs uppercase">
                     {tag}
                   </span>
                 ))
@@ -165,21 +138,17 @@ const components = {
             </div>
           </div>
 
+          {/* Botão Voltar */}
           <a
             href="/"
-            class="block w-full py-4 text-center font-headline text-2xl uppercase border-4 shadow-hard transition-all hover:-translate-y-1 hover:shadow-hard-lg group relative overflow-hidden"
-            style={{
-              color: theme.accent,
-              borderColor: theme.border,
-              backgroundColor: "rgba(0,0,0,0.1)",
-            }}
+            class="block w-full py-4 text-center font-headline text-2xl uppercase border-4 border-[var(--theme-border)] shadow-hard transition-all hover:-translate-y-1 hover:shadow-hard-lg group relative overflow-hidden text-[var(--theme-accent)] bg-[var(--theme-bg)]"
           >
             <div
               class="absolute inset-0 bg-[var(--theme-accent)] translate-y-full group-hover:translate-y-0 transition-transform duration-200 z-0"
             >
             </div>
             <span
-              class="relative z-10 group-hover:text-white transition-colors duration-200"
+              class="relative z-10 group-hover:text-[var(--theme-bg)] transition-colors duration-200"
             >
               ← VOLTAR PARA O CAOS
             </span>

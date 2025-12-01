@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import OpenAI from 'openai';
-import { createClient } from '@sanity/client';
+import { sanityWriteClient } from '../../lib/sanity.server';
 import crypto from 'crypto';
 import slugify from 'slugify';
 
@@ -12,20 +12,14 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
         // 1. Carregar Variáveis (Priorizando Astro)
-        const projectId = import.meta.env.SANITY_PROJECT_ID || import.meta.env.PUBLIC_SANITY_PROJECT_ID || process.env.SANITY_PROJECT_ID;
-        const dataset = import.meta.env.SANITY_DATASET || import.meta.env.PUBLIC_SANITY_DATASET || process.env.SANITY_DATASET;
-        const token = import.meta.env.SANITY_API_TOKEN || process.env.SANITY_API_TOKEN;
         const openaiKey = process.env.OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY;
 
         // Debug no Terminal (mostra status sem revelar segredos)
         console.log('Configuração Carregada:', {
-            projectId: projectId ? 'OK' : 'FALTANDO',
-            dataset: dataset ? 'OK' : 'FALTANDO',
-            token: token ? 'OK' : 'FALTANDO',
             openaiKey: openaiKey ? 'OK' : 'FALTANDO'
         });
 
-        if (!projectId || !token || !openaiKey) {
+        if (!openaiKey) {
             throw new Error(`Configuração incompleta no .env. Verifique o terminal.`);
         }
 
@@ -37,13 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
         const { topic, mode } = body;
 
         // 3. Configurar Clientes
-        const sanity = createClient({
-            projectId,
-            dataset,
-            token,
-            useCdn: false,
-            apiVersion: '2024-03-01',
-        });
+        // sanityWriteClient já está configurado em lib/sanity.server.ts
 
         const openai = new OpenAI({ apiKey: openaiKey });
 
@@ -89,12 +77,12 @@ export const POST: APIRoute = async ({ request }) => {
         const slug = slugify(data.title, { lower: true, strict: true }).slice(0, 90);
         const draftId = `drafts.gen.${crypto.createHash('md5').update(data.title).digest('hex')}`;
 
-        await sanity.createIfNotExists({
+        await sanityWriteClient.createIfNotExists({
             _id: draftId,
             _type: 'post', // Agora é um Post real
             title: data.title,
             slug: { _type: 'slug', current: slug },
-            format: data.format || 'article',
+            format: 'article',
             tags: data.tags || ['Original'],
             publishedAt: new Date().toISOString(),
             body: [

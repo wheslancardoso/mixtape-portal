@@ -1,17 +1,19 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { sanityClient, urlFor } from "../lib/sanity";
+import { urlFor } from "../lib/sanity";
+import { sanityWriteClient } from "../lib/sanity.server";
 import Newsletter from "../components/Newsletter.astro";
 
 // Fetch All Posts
 const posts =
-    await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc){
+    await sanityWriteClient.fetch(`*[_type == "post" && !(_id in path("drafts.**"))] | order(publishedAt desc){
   title, 
   slug, 
   publishedAt, 
   mainImage, 
   excerpt,
-  format
+  format,
+  channel
 }`);
 
 // Helper function for format styling

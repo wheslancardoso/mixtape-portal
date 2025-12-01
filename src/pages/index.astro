@@ -1,13 +1,14 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { sanityClient, sanityWriteClient, urlFor } from "../lib/sanity";
+import { urlFor } from "../lib/sanity";
+import { sanityWriteClient } from "../lib/sanity.server";
 import Newsletter from "../components/Newsletter.astro";
 import ChannelBadge from "../components/ChannelBadge.astro";
 
 // Fetch Latest Drop (Hero)
 // Fetch Latest Drop (Hero)
 const latestDrop =
-    await sanityWriteClient.fetch(`*[_type == "drop"] | order(publishedAt desc)[0]{
+    await sanityWriteClient.fetch(`*[_type == "drop" && !(_id in path("drafts.**"))] | order(publishedAt desc)[0]{
   title,
   slug,
   publishedAt,
