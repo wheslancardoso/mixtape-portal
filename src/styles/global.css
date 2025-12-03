@@ -21,11 +21,11 @@
 
     /* 1. RUÍDO DIGITAL (Noise/Grain) - Camada Superior */
     /* Opacidade: 0.15 a 0.20 para visibilidade clara */
-    --fx-noise-opacity: 0.18;
+    --fx-noise-opacity: 0.08;
 
     /* 2. SUJEIRA / RISCOS (Grunge Overlay) - Camada Intermediária */
     --fx-grunge-url: url("/grunge-overlay.jpg");
-    --fx-grunge-opacity: 0.4;
+    --fx-grunge-opacity: 0.12;
     /* Ajuste a força da sujeira aqui */
 
     /* 3. PAPEL AMASSADO (Zine Texture) - Camada Base */
@@ -40,6 +40,13 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+
+  @media (max-width: 768px) {
+    :root {
+      --fx-noise-opacity: 0.05;
+      --fx-grunge-opacity: 0.08;
+    }
   }
 }
 
@@ -57,6 +64,7 @@
   background-repeat: no-repeat;
 
   mix-blend-mode: multiply;
+  z-index: -1;
 }
 
 /* Camada 2: Sujeira/Grunge (Meio) */
