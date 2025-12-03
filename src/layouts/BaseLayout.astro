@@ -63,16 +63,14 @@ const ogImageUrl = image
     class="text-ink font-body overflow-x-hidden relative min-h-screen flex flex-col transition-colors duration-300"
     style="background-color: var(--theme-bg);"
   >
-    {/* 1. TEXTURA DE PAPEL (Comentada) */}
-    {
-      /* <div class="zine-texture fixed inset-0 z-[60] pointer-events-none opacity-70 mix-blend-multiply contrast-150 brightness-90"></div> */
-    }
+    {/* 1. TEXTURA DE PAPEL (Fundo) */}
+    <div class="zine-texture fixed inset-0 z-[40] pointer-events-none"></div>
 
-    {/* 2. RUÍDO DIGITAL */}
-    <div class="noise-overlay"></div>
+    {/* 2. SUJEIRA / GRUNGE (Meio) */}
+    <div class="grunge-overlay fixed inset-0 z-[50] pointer-events-none"></div>
 
-    {/* 3. SUJEIRA / GRUNGE (Riscos) */}
-    <div class="grunge-overlay"></div>
+    {/* 3. RUÍDO DIGITAL (Topo) */}
+    <div class="noise-overlay fixed inset-0 z-[60] pointer-events-none"></div>
 
     <Header />
 
