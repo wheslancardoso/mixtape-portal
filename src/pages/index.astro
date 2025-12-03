@@ -4,6 +4,7 @@ import { urlFor } from "../lib/sanity";
 import { sanityWriteClient } from "../lib/sanity.server";
 import Newsletter from "../components/Newsletter.astro";
 import ChannelBadge from "../components/ChannelBadge.astro";
+import PostCard from "../components/PostCard.astro";
 
 // Fetch Latest Drop (Hero)
 // Fetch Latest Drop (Hero)
@@ -34,20 +35,7 @@ console.log("🏠 [HOME] Posts recuperados para a capa:");
 latestPosts.forEach((p: any) => console.log(`- ${p.title} (${p.publishedAt})`));
 console.log("------------------------------------------------");
 
-// Helper function for format styling
-function getFormatStyle(format: string) {
-    switch (format) {
-        case "news":
-            return { label: "#NEWS", color: "bg-yellow-400 text-black" };
-        case "review":
-            return { label: "#REVIEW", color: "bg-purple-600 text-white" };
-        case "interview":
-            return { label: "#ENTREVISTA", color: "bg-blue-600 text-white" };
-        case "article":
-        default:
-            return { label: "#ORIGINAL", color: "bg-safety-orange text-white" };
-    }
-}
+// Helper function for format styling removed as it is now handled in PostCard component
 ---
 
 <BaseLayout title="MIXTAPE252 // O ALGORITMO NÃO TEM BOM GOSTO">
@@ -153,48 +141,9 @@ function getFormatStyle(format: string) {
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {
-                    latestPosts.map((post: any) => {
-                        const style = getFormatStyle(post.format);
-                        return (
-                            <a
-                                href={`/post/${post.slug.current}`}
-                                class="group relative bg-white border-4 border-ink p-4 shadow-hard hover:shadow-hard-lg transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
-                            >
-                                <div class="overflow-hidden border-2 border-ink mb-4 relative aspect-video">
-                                    {post.mainImage ? (
-                                        <img
-                                            src={urlFor(post.mainImage)
-                                                .width(600)
-                                                .height(400)
-                                                .url()}
-                                            alt={post.title}
-                                            class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 scale-100 group-hover:scale-110"
-                                        />
-                                    ) : (
-                                        <div class="w-full h-full flex items-center justify-center bg-gray-200 font-headline text-xl">
-                                            NO SIGNAL
-                                        </div>
-                                    )}
-                                    <div class="absolute top-0 left-0 z-10">
-                                        <ChannelBadge channel={post.channel} />
-                                    </div>
-                                </div>
-
-                                <h4 class="text-2xl font-headline uppercase leading-[0.9] mb-4 group-hover:text-safety-orange transition-colors flex-grow">
-                                    {post.title}
-                                </h4>
-
-                                <p class="text-sm font-bold border-t-2 border-ink pt-2 mt-auto flex justify-between font-body">
-                                    <span>
-                                        {new Date(
-                                            post.publishedAt,
-                                        ).toLocaleDateString("pt-BR")}
-                                    </span>
-                                    <span>LER MAIS -></span>
-                                </p>
-                            </a>
-                        );
-                    })
+                    latestPosts.map((post: any, i: number) => (
+                        <PostCard post={post} index={i} />
+                    ))
                 }
             </div>
 
