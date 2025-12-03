@@ -2,9 +2,17 @@
     class="fixed top-0 left-0 w-full bg-paper/95 backdrop-blur-md text-ink border-b-8 z-50 h-24 flex items-center shadow-hard transition-colors duration-300"
     style="border-color: var(--theme-border)"
 >
-    <div class="w-full max-w-7xl mx-auto px-8 flex justify-between items-center">
-        <a href="/" class="font-headline text-4xl md:text-5xl tracking-tighter uppercase group flex items-baseline gap-1">
-            <span class="text-ink transition-colors duration-300 hover:text-[var(--theme-accent)]">MIXTAPE</span>
+    <div
+        class="w-full max-w-7xl mx-auto px-8 flex justify-between items-center"
+    >
+        <a
+            href="/"
+            class="font-headline text-4xl md:text-5xl tracking-tighter uppercase group flex items-baseline gap-1"
+        >
+            <span
+                class="text-ink transition-colors duration-300 hover:text-[var(--theme-accent)]"
+                >MIXTAPE</span
+            >
             <span class="text-[var(--theme-accent)]">252</span>
         </a>
 
@@ -15,7 +23,7 @@
                         <li>
                             <a
                                 href={`/${item.toLowerCase() === "feed" ? "posts" : item.toLowerCase().replace("manifesto", "sobre")}`}
-                                class="font-headline text-2xl text-ink uppercase tracking-wide transition-colors hover:text-[var(--theme-accent)]"
+                                class="font-headline text-2xl text-ink uppercase tracking-wide px-4 py-2 bg-paper border-4 border-ink shadow-[4px_4px_0px_0px_#111] inline-block transition-all duration-200 hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-safety-orange hover:text-white hover:-rotate-2"
                             >
                                 {item}
                             </a>
